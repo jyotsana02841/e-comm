@@ -13,7 +13,7 @@ const ProductSubmission = () => {
     e.preventDefault();
     setSubmissionStatus("submitting");
     try {
-      const response = await axios.post("http://localhost:5000/api/products", {
+      const response = await axios.post("https://e-comm-git-main-jyotsana-joshis-projects.vercel.app/api/products", {
         name,
         price,
         description,

@@ -31,15 +31,20 @@ async function searchProducts(input) {
     const keywords = input
       .toLowerCase()
       .split(/\s+/)
-      .filter(word => word.length > 2); // skip common/short words
+      .filter((word) => word.length > 2); // skip common/short words
 
     if (keywords.length === 0) return [];
 
     const conditions = keywords
-      .map((_, index) => `(LOWER(name) ILIKE $${index + 1} OR LOWER(description) ILIKE $${index + 1})`)
+      .map(
+        (_, index) =>
+          `(LOWER(name) ILIKE $${index + 1} OR LOWER(description) ILIKE $${
+            index + 1
+          })`
+      )
       .join(" OR ");
 
-    const values = keywords.map(k => `%${k}%`);
+    const values = keywords.map((k) => `%${k}%`);
 
     const query = `SELECT * FROM products WHERE ${conditions}`;
     const result = await db.query(query, values);
@@ -50,5 +55,14 @@ async function searchProducts(input) {
   }
 }
 
+async function deleteProduct(id) {
+  try {
+    const result = await db.query("DELETE FROM products WHERE id = $1", [id]);
+    return result; // Return the result of the query
+  } catch (error) {
+    console.error("Error deleting product from database:", error);
+    throw error;
+  }
+}
 
 module.exports = { createProduct, getAllProducts, searchProducts };
