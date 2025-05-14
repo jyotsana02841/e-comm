@@ -78,7 +78,9 @@ const MyProducts = () => {
   const handleDelete = async (id) => {
     setDeletingId(id); // 👈 Set the product being deleted
     try {
-      await axios.delete(`http://localhost:5000/api/products/${id}`);
+      await axios.delete(
+        `https://e-comm-git-main-jyotsana-joshis-projects.vercel.app/api/products/${id}`
+      );
       setProducts((prev) => prev.filter((p) => p.id !== id));
     } catch (error) {
       console.error("Error deleting product:", error);
