@@ -54,18 +54,11 @@ app.get("/api/products/search", async (req, res) => {
 });
 
 app.delete("/api/products/:id", async (req, res) => {
-  // Correct route definition
   try {
     const { id } = req.params;
-    console.log(`Deleting product with id: ${id}`);
-    const result = await productModel.deleteProduct(id);
-    if (result.rowCount > 0) {
-      res.status(200).json({ message: "Product deleted successfully" });
-    } else {
-      res.status(404).json({ error: "Product not found" }); // IMPORTANT: Handle 404
-    }
+    await productModel.deleteProduct(id);
+    res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
-    console.error("Error deleting product:", error);
     res.status(500).json({ error: "Failed to delete product" });
   }
 });

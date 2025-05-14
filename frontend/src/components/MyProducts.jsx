@@ -1,27 +1,34 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const ProductCard = ({ product, onDelete }) => {
+const ProductCard = ({ product, onDelete, deletingId }) => {
   return (
-    <div className="border rounded-md shadow-md p-4 flex items-center justify-between">
-      <div>
-        {product.image_url && (
-          <img
-            src={product.image_url}
-            alt={product.name}
-            className="w-full h-32 object-cover mb-2 rounded-md"
-          />
-        )}
-        <h3 className="text-lg font-semibold mb-1">{product.name}</h3>
-        <p className="text-gray-600 mb-1">Price: ${product.price}</p>
-        <p className="text-gray-700">{product.description}</p>
+    <div className="border rounded-md shadow-md p-4 relative">
+      {product.image_url && (
+        <img
+          src={product.image_url}
+          alt={product.name}
+          className="w-full h-32 object-cover mb-2 rounded-md"
+        />
+      )}
+      <div className="same flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold mb-1">{product.name}</h3>
+          <p className="text-gray-600 mb-1">Price: ${product.price}</p>
+          <p className="text-gray-700">{product.description}</p>
+        </div>
+        <button
+          onClick={() => onDelete(product.id)}
+          className={`px-2 py-1 text-xs rounded w-24 h-8 ${
+            deletingId === product.id
+              ? "bg-gray-400 text-white cursor-not-allowed"
+              : "bg-red-500 text-white hover:bg-red-600"
+          }`}
+          disabled={deletingId === product.id}
+        >
+          {deletingId === product.id ? "Deleting..." : "Delete"}
+        </button>
       </div>
-      <button
-        onClick={() => onDelete(product.id)}
-        className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Delete
-      </button>
     </div>
   );
 };
@@ -31,6 +38,8 @@ const MyProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState("");
+  const [deletingId, setDeletingId] = useState(null); // 👈 New state
+
   const fetchProducts = async () => {
     setLoading(true);
     setError(null);
@@ -58,14 +67,26 @@ const MyProducts = () => {
     };
   }, []);
 
-  const handleFilterChange = (e) => {
-    const value = e.target.value;
-    setFilter(value);
-  };
-
   useEffect(() => {
     fetchProducts();
   }, [filter]);
+
+  const handleFilterChange = (e) => {
+    setFilter(e.target.value);
+  };
+
+  const handleDelete = async (id) => {
+    setDeletingId(id); // 👈 Set the product being deleted
+    try {
+      await axios.delete(`http://localhost:5000/api/products/${id}`);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      setError("Failed to delete product.");
+    } finally {
+      setDeletingId(null); // 👈 Clear deleting state
+    }
+  };
 
   const filteredProducts = products.filter((product) => {
     const searchTerm = filter.toLowerCase();
@@ -74,21 +95,6 @@ const MyProducts = () => {
       product.description.toLowerCase().includes(searchTerm)
     );
   });
-
-  const handleDeleteProduct = async (id) => {
-    try {
-      console.log(`Deleting product with ID: ${id}`);
-      const deleted = await axios.delete(
-        `https://my-ecomm-api.onrender.com/api/products/${id}`
-      );
-      console.log(deleted);
-
-      setProducts(products.filter((product) => product.id !== id));
-    } catch (error) {
-      console.error("Error deleting product:", error);
-      setError("Failed to delete product.");
-    }
-  };
 
   return (
     <div className="p-6">
@@ -109,7 +115,8 @@ const MyProducts = () => {
           <ProductCard
             key={product.id}
             product={product}
-            onDelete={handleDeleteProduct}
+            onDelete={handleDelete}
+            deletingId={deletingId}
           />
         ))}
       </div>
