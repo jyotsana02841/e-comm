@@ -26,67 +26,8 @@ async function getAllProducts() {
   }
 }
 
-// async function searchProducts(input) {
-//   try {
-//     const keywords = input
-//       .toLowerCase()
-//       .split(/\s+/)
-//       .filter((word) => word.length > 2); // skip common/short words
-
-//     if (keywords.length === 0) return [];
-
-//     const conditions = keywords
-//       .map(
-//         (_, index) =>
-//           `(LOWER(name) ILIKE $${index + 1} OR LOWER(description) ILIKE $${
-//             index + 1
-//           })`
-//       )
-//       .join(" OR ");
-
-//     const values = keywords.map((k) => `%${k}%`);
-
-//     const query = `SELECT * FROM products WHERE ${conditions}`;
-//     const result = await db.query(query, values);
-//     return result.rows;
-//   } catch (error) {
-//     console.error("Error in contextual search:", error);
-//     throw error;
-//   }
-// }
-
-// async function searchProducts(input) {
-//   try {
-//     // Convert input into distinct, meaningful lowercase keywords
-//     const keywords = input
-//       .toLowerCase()
-//       .split(/\s+/)
-//       .filter((word) => word.length > 1); // Allowing short words like "4k"
-
-//     if (keywords.length === 0) return [];
-
-//     // Build dynamic WHERE clause: keyword1 OR keyword2 OR ...
-//     const conditions = keywords
-//       .map(
-//         (_, index) =>
-//           `(LOWER(name) ILIKE $${index + 1} OR LOWER(description) ILIKE $${index + 1})`
-//       )
-//       .join(" OR ");
-
-//     const values = keywords.map((word) => `%${word}%`);
-
-//     const query = `SELECT * FROM products WHERE ${conditions}`;
-//     const result = await db.query(query, values);
-//     return result.rows;
-//   } catch (error) {
-//     console.error("Error in contextual search:", error);
-//     throw error;
-//   }
-// }
-
 async function searchProducts(input) {
   try {
-    // Split the input into keywords and filter out empty words
     const keywords = input
       .toLowerCase()
       .split(/\s+/)
@@ -94,14 +35,13 @@ async function searchProducts(input) {
 
     if (keywords.length === 0) return [];
 
-    // For each keyword, we'll check both the 'name' and 'description' fields
     const conditions = keywords
       .map((_, index) => {
         return `(LOWER(name) ILIKE $${index + 1} OR LOWER(description) ILIKE $${
           index + 1
         })`;
       })
-      .join(" AND "); // Use AND instead of OR to match all keywords
+      .join(" AND ");
 
     const values = keywords.map((word) => `%${word}%`);
 
@@ -129,5 +69,3 @@ module.exports = {
   searchProducts,
   deleteProduct,
 };
-
-

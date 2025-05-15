@@ -1,31 +1,26 @@
-// frontend/src/components/ProductSubmission.js
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import axios from "axios";
 
 const ProductSubmission = () => {
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [description, setDescription] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm();
   const [submissionStatus, setSubmissionStatus] = useState(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     setSubmissionStatus("submitting");
     try {
-      const response = await axios.post("https://e-comm-git-main-jyotsana-joshis-projects.vercel.app/api/products", {
-        name,
-        price,
-        description,
-        imageUrl,
-      });
+      const response = await axios.post(
+        "https://e-comm-git-main-jyotsana-joshis-projects.vercel.app/api/products",
+        data
+      );
       console.log("Product submitted:", response.data);
-      setName("");
-      setPrice("");
-      setDescription("");
-      setImageUrl("");
+      reset(); // Clears the form
       setSubmissionStatus("success");
-      // Optionally trigger a refetch of products in the other tab
       window.dispatchEvent(new Event("productAdded"));
     } catch (error) {
       console.error("Error submitting product:", error);
@@ -36,7 +31,7 @@ const ProductSubmission = () => {
   return (
     <div className="p-6">
       <h2 className="text-xl font-semibold mb-4">Submit New Product</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label
             htmlFor="name"
@@ -47,12 +42,11 @@ const ProductSubmission = () => {
           <input
             type="text"
             id="name"
+            {...register("name", { required: true })}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
           />
         </div>
+
         <div>
           <label
             htmlFor="price"
@@ -63,12 +57,11 @@ const ProductSubmission = () => {
           <input
             type="number"
             id="price"
+            {...register("price", { required: true })}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            required
           />
         </div>
+
         <div>
           <label
             htmlFor="description"
@@ -78,12 +71,12 @@ const ProductSubmission = () => {
           </label>
           <textarea
             id="description"
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
             rows="3"
+            {...register("description")}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           ></textarea>
         </div>
+
         <div>
           <label
             htmlFor="imageUrl"
@@ -94,20 +87,19 @@ const ProductSubmission = () => {
           <input
             type="url"
             id="imageUrl"
+            {...register("imageUrl")}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
           />
         </div>
+
         <button
           type="submit"
+          disabled={isSubmitting}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          disabled={submissionStatus === "submitting"}
         >
-          {submissionStatus === "submitting"
-            ? "Submitting..."
-            : "Submit Product"}
+          {isSubmitting ? "Submitting..." : "Submit Product"}
         </button>
+
         {submissionStatus === "success" && (
           <p className="text-green-500 mt-2">Product submitted successfully!</p>
         )}
@@ -118,4 +110,5 @@ const ProductSubmission = () => {
     </div>
   );
 };
+
 export default ProductSubmission;
