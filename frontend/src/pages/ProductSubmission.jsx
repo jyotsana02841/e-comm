@@ -15,7 +15,7 @@ const ProductSubmission = () => {
     setSubmissionStatus("submitting");
     try {
       const response = await axios.post(
-        "https://e-comm-5tzg-git-main-jyotsana-joshis-projects.vercel.app/api/products",
+        "https://e-comm-git-main-jyotsana-joshis-projects.vercel.app/api/products",
         data
       );
       console.log("Product submitted:", response.data);
