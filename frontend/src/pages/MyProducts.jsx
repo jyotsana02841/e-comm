@@ -79,7 +79,7 @@ const MyProducts = () => {
     setDeletingId(id);
     try {
       await axios.delete(
-        `https://e-comm-git-main-jyotsana-joshis-projects.vercel.app/api/products/${id}`
+        `https://e-comm-5tzg-git-main-jyotsana-joshis-projects.vercel.app/api/products/${id}`
       );
       setProducts((prev) => prev.filter((p) => p.id !== id));
     } catch (error) {
